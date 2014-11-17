@@ -4,6 +4,7 @@ package pl.dmcs.mecin.raspic;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -12,11 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 
-
-/**
- * A fragment with a Google +1 button.
- *
- */
 public class StartFragment extends Fragment {
 
     private OnClickActivityAction callbackListener;
@@ -64,6 +60,16 @@ public class StartFragment extends Fragment {
                 callbackListener.scanLocalNetwork();
             }
         });
+
+        //about slide activity
+        Button aboutButton = (Button) view.findViewById(R.id.aboutSlideActivity);
+        aboutButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(v.getContext(), AboutSlideActivity.class));
+            }
+        });
+
         return view;
     }
 

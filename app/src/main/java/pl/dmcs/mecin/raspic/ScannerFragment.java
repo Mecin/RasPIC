@@ -56,11 +56,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 
-/**
- * A simple {@link Fragment} subclass.
- *
- */
-
 
 
 public class ScannerFragment extends ListFragment {
@@ -219,9 +214,13 @@ public class ScannerFragment extends ListFragment {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity().getApplicationContext(), "Starting scanning!", Toast.LENGTH_SHORT).show();
-                dialogScanning = ProgressDialog.show(getActivity(), "Scanning", "Please wait...", true, true);
-                new Scanner().execute(ipAddr.toString());
+                if(isWifiConnected()) {
+                    Toast.makeText(getActivity().getApplicationContext(), "Starting scanning!", Toast.LENGTH_SHORT).show();
+                    dialogScanning = ProgressDialog.show(getActivity(), "Scanning", "Please wait...", true, true);
+                    new Scanner().execute(ipAddr.toString());
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), "Not connected!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

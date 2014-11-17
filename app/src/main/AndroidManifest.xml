@@ -2,13 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pl.dmcs.mecin.raspic" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/iconpi"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Holo">
+        android:theme="@android:style/Theme.Holo" >
         <activity
-            android:name=".MainActivity"
+            android:name="pl.dmcs.mecin.raspic.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,12 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="pl.dmcs.mecin.raspic.AboutSlideActivity"
+            android:label="@string/title_activity_about_slide" >
+        </activity>
     </application>
-
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
 
 </manifest>

@@ -1,5 +1,6 @@
 package pl.dmcs.mecin.raspic;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -25,6 +26,10 @@ public class MainActivity extends Activity implements ScannerFragment.OnListItem
 
         // Hide title bar
         //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        //ActionBar actionBar = getSupportActionBar();
+        //actionBar.setDisplayHomeAsUpEnabled(true);
+
 
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
@@ -61,6 +66,9 @@ public class MainActivity extends Activity implements ScannerFragment.OnListItem
                 Log.d("onConnectionMethodChoose","Sockets " + ip);
                 break;
             case 1:
+                Bundle bundle = new Bundle();
+                bundle.putString("IP", ip);
+                switchFragmentWithBundle(new RaspiControlFragmentWeb(), bundle);
                 Log.d("onConnectionMethodChoose","Webview " + ip);
                 break;
             case -1:
@@ -93,6 +101,11 @@ public class MainActivity extends Activity implements ScannerFragment.OnListItem
         args.putString("IP", ip);
         raspiControlFragment.setArguments(args);
         switchFragment(raspiControlFragment);
+    }
+
+    public void switchFragmentWithBundle(Fragment fragment, Bundle bundle) {
+        fragment.setArguments(bundle);
+        switchFragment(fragment);
     }
 
     public void switchFragment(Fragment fragment) {

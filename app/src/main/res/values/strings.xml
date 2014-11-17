@@ -14,6 +14,9 @@
     <string name="cancel">Cancel</string>
     <string name="connect_method">Connect via</string>
     <string name="reach_time_ms">ms</string>
-
+    <string name="title_activity_about_slide">AboutSlideActivity</string>
+    <string name="about">About</string>
+    <string name="about_information">This is RasPIC Android Application.</string>
+    <string name="version_information">Version 0.1.0.</string>
 
 </resources>
