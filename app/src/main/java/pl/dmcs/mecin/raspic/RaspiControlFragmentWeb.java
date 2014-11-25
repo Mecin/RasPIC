@@ -67,6 +67,7 @@ public class RaspiControlFragmentWeb extends Fragment {
 
 
 
+
         return view;
     }
 

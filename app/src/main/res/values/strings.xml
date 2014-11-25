@@ -19,5 +19,10 @@
     <string name="about_information">This is RasPIC Android Application.</string>
     <string name="version_information">Version 0.1.0.</string>
     <string name="swipe_shake_left_right">(swipe or shake)</string>
+    <string name="forward">forward</string>
+    <string name="back">back</string>
+    <string name="turn_left">left</string>
+    <string name="turn_right">right</string>
+    <string name="stop">stop</string>
 
 </resources>

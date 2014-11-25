@@ -61,12 +61,14 @@ public class MainActivity extends Activity implements ScannerFragment.OnListItem
 
     @Override
     public void onConnectionMethodChoose(String ip, int connectMethod) {
+        Bundle bundle =  new Bundle();
         switch (connectMethod) {
             case 0:
+                bundle.putString("IP", ip);
+                switchFragmentWithBundle(new RaspiControlFragmentSocket(), bundle);
                 Log.d("onConnectionMethodChoose","Sockets " + ip);
                 break;
             case 1:
-                Bundle bundle = new Bundle();
                 bundle.putString("IP", ip);
                 switchFragmentWithBundle(new RaspiControlFragmentWeb(), bundle);
                 Log.d("onConnectionMethodChoose","Webview " + ip);
