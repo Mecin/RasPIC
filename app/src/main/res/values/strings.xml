@@ -17,12 +17,16 @@
     <string name="title_activity_about_slide">AboutSlideActivity</string>
     <string name="about">About</string>
     <string name="about_information">This is RasPIC Android Application.</string>
-    <string name="version_information">Version 0.1.0.</string>
+    <string name="version_information">Version 0.1.5.</string>
     <string name="swipe_shake_left_right">(swipe or shake)</string>
     <string name="forward">forward</string>
     <string name="back">back</string>
     <string name="turn_left">left</string>
     <string name="turn_right">right</string>
     <string name="stop">stop</string>
-
+    <string name="action_search">Search</string>
+    <string name="action_compose">Compose</string>
+    <string name="action_exit">Exit</string>
+    <string name="ip_addr">192.168.1.1</string>
+    <string name="ip_wifi_switcher">IP/Wi-fi</string>
 </resources>

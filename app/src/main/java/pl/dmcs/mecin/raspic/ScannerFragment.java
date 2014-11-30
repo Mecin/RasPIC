@@ -2,13 +2,17 @@ package pl.dmcs.mecin.raspic;
 
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ListActivity;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
@@ -16,6 +20,7 @@ import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -35,11 +40,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.w3c.dom.Text;
 
@@ -63,9 +70,11 @@ public class ScannerFragment extends ListFragment {
     OnListItemClicked mCallback;
     protected ProgressDialog dialogScanning;
     protected int REACH_TIME = 100;
-    protected ArrayAdapter<String> adapter;
-    public ArrayList<String> arrayListDeviceNetworkDetails = null;
-
+    protected ScannerArrayAdapter adapter;
+    public ArrayList<DeviceNetworkDetails> arrayListDeviceNetworkDetails = null;
+    WifiManager wifiMan;
+    WifiScanReceiver wifiReciever;
+    private boolean ipScanner = true;
 
     public ScannerFragment() {
         // Required empty public constructor
@@ -89,13 +98,13 @@ public class ScannerFragment extends ListFragment {
     @Override
     public void onSaveInstanceState(Bundle savedState) {
         // To avoid null pointer exception when fragment is shadowed
-        if(adapter != null) {
-            String[] storedAdapter = new String[adapter.getCount()];
-            for (int i = 0; i < adapter.getCount(); i++) {
-                storedAdapter[i] = adapter.getItem(i);
-            }
+        if(adapter != null && arrayListDeviceNetworkDetails != null) {
+            //String[] storedAdapter = new String[adapter.getCount()];
+            //for (int i = 0; i < adapter.getCount(); i++) {
+            //    storedAdapter[i] = adapter.getItem(i);
+            //}
 
-            savedState.putStringArray("storedAdapter", storedAdapter);
+            savedState.putParcelableArrayList("storedAdapter", arrayListDeviceNetworkDetails);
         }
 
         if(dialogScanning != null) {
@@ -111,30 +120,72 @@ public class ScannerFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1, arrayListDeviceNetworkDetails);
+        adapter = new ScannerArrayAdapter(getActivity(), R.layout.scanner_row, arrayListDeviceNetworkDetails);
         setListAdapter(adapter);
         final ListView scannerListView = getListView();
+
 
 
         scannerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
+                if(ipScanner) {
 
-                String item = ((TextView)view).getText().toString();
+                    Log.d("onItemListClick", "ip mode");
 
-                //Toast.makeText(getActivity().getApplicationContext(), item, Toast.LENGTH_SHORT).show();
+                    DeviceNetworkDetails selectedDeviceNetworkDetails = (DeviceNetworkDetails) getListAdapter().getItem(position);
 
-                //mCallback.onItemClicked(item);
+                    //Toast.makeText(getActivity().getApplicationContext(), item, Toast.LENGTH_SHORT).show();
 
-                Bundle args = new Bundle();
-                args.putString("IP", item);
+                    //mCallback.onItemClicked(item);
 
-                OnClickDialog onClickDialog = new OnClickDialog();
-                onClickDialog.setArguments(args);
+                    Log.d("selected", "IP: " + selectedDeviceNetworkDetails.getIP() + " SSID: " + selectedDeviceNetworkDetails.getSSID());
 
-                onClickDialog.show(getFragmentManager(), "OnClickDialog");
+                    Bundle args = new Bundle();
+                    args.putString("IP", selectedDeviceNetworkDetails.getIP());
+
+                    OnClickDialog onClickDialog = new OnClickDialog();
+                    onClickDialog.setArguments(args);
+
+                    onClickDialog.show(getFragmentManager(), "OnClickDialog");
+
+                } else {
+
+                    Log.d("onItemListClick", "network mode");
+
+                    DeviceNetworkDetails selectedDeviceNetworkDetails = (DeviceNetworkDetails) getListAdapter().getItem(position);
+
+                    // Configuration of new wi-fi connection
+                    WifiConfiguration wifiConfiguration = new WifiConfiguration();
+
+                    // Set SSID for new connection
+                    wifiConfiguration.SSID = "\"" + selectedDeviceNetworkDetails.getSSID() + "\"";
+
+                    // For open network only
+                    wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+
+                    // Add prepared network
+                    wifiMan.addNetwork(wifiConfiguration);
+
+                    // Get all configured wi-fi connections
+                    List<WifiConfiguration> list = wifiMan.getConfiguredNetworks();
+
+                    Log.d("WIFI", "Before connecting.");
+                    // Search for added configuration and connect if found
+                    for( WifiConfiguration i : list ) {
+                        if(i.SSID != null && i.SSID.equals("\"" + selectedDeviceNetworkDetails.getSSID() + "\"")) {
+                            wifiMan.disconnect();
+                            wifiMan.enableNetwork(i.networkId, true);
+                            wifiMan.reconnect();
+
+                            Toast.makeText(getActivity().getApplicationContext(), selectedDeviceNetworkDetails.getSSID() + " connected", Toast.LENGTH_SHORT).show();
+
+                            break;
+                        }
+                    }
+                    Log.d("WIFI", "After connecting.");
+                }
             }
         });
 
@@ -142,7 +193,7 @@ public class ScannerFragment extends ListFragment {
 
         if (savedInstanceState != null) {
             Log.d("onActivityCreated", "savedInstanceState != null");
-            String[] values = savedInstanceState.getStringArray("storedAdapter");
+            ArrayList<DeviceNetworkDetails> values = savedInstanceState.getParcelableArrayList("storedAdapter");
             if (values != null) {
                 Log.d("onActivityCreated", "values != null");
                 adapter.addAll(values);
@@ -161,8 +212,7 @@ public class ScannerFragment extends ListFragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_scanner, container, false);
 
-        arrayListDeviceNetworkDetails = new ArrayList<String>();
-
+        arrayListDeviceNetworkDetails = new ArrayList<DeviceNetworkDetails>();
 
 
         // Reach time field
@@ -192,7 +242,11 @@ public class ScannerFragment extends ListFragment {
         });
 
         // Wi-fi manager
-        WifiManager wifiMan = (WifiManager)getActivity().getSystemService(Context.WIFI_SERVICE);
+        wifiMan = (WifiManager)getActivity().getSystemService(Context.WIFI_SERVICE);
+
+        // Wi-fi reciever
+        wifiReciever = new WifiScanReceiver();
+
         // DHCP information
         DhcpInfo dhcpInfo = wifiMan.getDhcpInfo();
 
@@ -205,21 +259,50 @@ public class ScannerFragment extends ListFragment {
         // Set your ip text
         TextView yourIpText = (TextView) view.findViewById(R.id.your_ip_addr);
         if(isWifiConnected()) {
-            yourIpText.append(ipAddr.toString().replace("/", ""));
+            yourIpText.append(" " + ipAddr.toString().replace("/", ""));
         } else {
-            yourIpText.append("Not connected!");
+            yourIpText.append(" Not connected!");
         }
+
+        // Toggle IP/Wi-Fi scan button
+        ToggleButton ipWifiToggleButton = (ToggleButton) view.findViewById(R.id.toggle_ip_wifi);
+        ipWifiToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // The toggle is enabled
+                    Toast.makeText(getActivity().getApplicationContext(), "Network scanner", Toast.LENGTH_SHORT).show();
+                    // Set network scanner mode
+                    ipScanner = false;
+                } else {
+                    // The toggle is disabled
+                    Toast.makeText(getActivity().getApplicationContext(), "IP scanner", Toast.LENGTH_SHORT).show();
+                    // Set ip scanner mode
+                    ipScanner = true;
+                }
+            }
+        });
+
         // Scann button
         Button scanButton = (Button) view.findViewById(R.id.start_scan_button);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isWifiConnected()) {
-                    Toast.makeText(getActivity().getApplicationContext(), "Starting scanning!", Toast.LENGTH_SHORT).show();
+                if(ipScanner) {
+                    Toast.makeText(getActivity().getApplicationContext(), "IP scanning!", Toast.LENGTH_SHORT).show();
                     dialogScanning = ProgressDialog.show(getActivity(), "Scanning", "Please wait...", true, true);
                     new Scanner().execute(ipAddr.toString());
                 } else {
-                    Toast.makeText(getActivity().getApplicationContext(), "Not connected!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), "Network scanning!", Toast.LENGTH_SHORT).show();
+                    // TODO
+                    wifiMan.setWifiEnabled(true);
+
+                    // Wi-fi scanner brodcast receiver
+                    getActivity().getApplicationContext().registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+                    if(wifiMan.startScan()) {
+                        Log.d("SR", "before for each");
+
+                    }
                 }
             }
         });
@@ -229,15 +312,18 @@ public class ScannerFragment extends ListFragment {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity().getApplicationContext(), "Refresh", Toast.LENGTH_SHORT).show();
+
+                // Pop current fragment
+                getFragmentManager().popBackStack();
+
+                // And create new instance
                 Fragment newFragInstance = new ScannerFragment();
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
-                // Get current fragment and remove
-                // transaction.remove(getFragmentManager().findFragmentById(R.id.fragment_scanner));
-
                 transaction.replace(R.id.activity_main, newFragInstance);
+
                 // To store prevous fragment keep null
-                //transaction.addToBackStack(null);
+                transaction.addToBackStack(null);
 
                 // Commit the transaction
                 transaction.commit();
@@ -327,9 +413,10 @@ public class ScannerFragment extends ListFragment {
                         Log.d("IP", "\n" + ipAddress.getCanonicalHostName());
                         // Detailed scanner result
                         //tmpDataString = "Hostname: " + ipAddress.getCanonicalHostName() + "\nIP: " + currentPingedIp;
+
                         // IP only result
                         tmpDataString = currentPingedIp;
-                        arrayListDeviceNetworkDetails.add(tmpDataString);
+                        arrayListDeviceNetworkDetails.add(new DeviceNetworkDetails(ipAddress.getCanonicalHostName(), currentPingedIp));
                     } else {
                         Log.d("IP", "\n" + currentPingedIp + " - Not responding");
                         //textField.append("\n" + currentPingedIp + " - Not responding");
@@ -355,6 +442,69 @@ public class ScannerFragment extends ListFragment {
         }
 
 
+    }
+
+
+    private class ScannerArrayAdapter extends ArrayAdapter<DeviceNetworkDetails> {
+
+        private ArrayList<DeviceNetworkDetails> items;
+
+        public ScannerArrayAdapter(Context context, int textViewResourceId,
+                         ArrayList<DeviceNetworkDetails> items) {
+            super(context, textViewResourceId, items);
+            this.items = items;
+
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View v = convertView;
+            if (v == null) {
+                LayoutInflater li = LayoutInflater.from(getActivity().getApplicationContext());
+                v = li.inflate(R.layout.scanner_row, null);
+            }
+
+            DeviceNetworkDetails o = items.get(position);
+            if (o != null) {
+
+                TextView adapterSsidTextView = (TextView) v.findViewById(R.id.adapter_ssid);
+                TextView adapterIpTextView = (TextView) v.findViewById(R.id.adapter_ip);
+                //TextView kursSr = (TextView) v.findViewById(R.id.kursSr);
+
+                if (adapterSsidTextView != null) {
+                    adapterSsidTextView.setText("SSID: " + o.getSSID());
+                }
+                if (adapterIpTextView != null) {
+                    adapterIpTextView.setText("IP: " + o.getIP());
+                }
+
+            }
+            return v;
+        }
+    }
+
+
+    private class WifiScanReceiver extends BroadcastReceiver {
+
+        public void onReceive(Context c, Intent intent) {
+
+            Log.d("BR", "enter onReceive");
+
+            List<ScanResult> wifiScanList = wifiMan.getScanResults();
+
+            arrayListDeviceNetworkDetails.clear();
+
+            for(ScanResult sr : wifiScanList) {
+                Log.d("FE SR", "" + sr.SSID + " " + sr.BSSID);
+                arrayListDeviceNetworkDetails.add(new DeviceNetworkDetails(sr.SSID, sr.BSSID));
+            }
+
+            // Unregister brodcast receiver
+            getActivity().getApplicationContext().unregisterReceiver(wifiReciever);
+
+            adapter.notifyDataSetChanged();
+
+        }
     }
 
 }

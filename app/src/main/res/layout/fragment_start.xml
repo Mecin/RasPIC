@@ -1,9 +1,10 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/fragment_start"
-    tools:context=".StartFragment">
+    tools:context=".StartFragment"
+    android:orientation="vertical">
 
 
 
@@ -11,9 +12,13 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_gravity="center"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <Button
+            android:layout_marginTop="10dp"
+            android:padding="10dp"
+            android:background="@drawable/raspi_button"
             android:id="@+id/connectToPIButton"
             android:text="@string/connect_button"
             android:layout_gravity="center"
@@ -22,6 +27,9 @@
 
 
         <Button
+            android:layout_marginTop="10dp"
+            android:padding="10dp"
+            android:background="@drawable/raspi_button"
             android:id="@+id/scanner"
             android:text="@string/scan_button"
             android:layout_gravity="center"
@@ -29,6 +37,9 @@
             android:layout_height="wrap_content" />
 
         <Button
+            android:layout_marginTop="10dp"
+            android:padding="10dp"
+            android:background="@drawable/raspi_button"
             android:id="@+id/aboutSlideActivity"
             android:layout_width="wrap_content"
             android:layout_gravity="center"
@@ -36,4 +47,4 @@
             android:text="@string/about"/>
     </LinearLayout>
 
-</FrameLayout>
+</LinearLayout>

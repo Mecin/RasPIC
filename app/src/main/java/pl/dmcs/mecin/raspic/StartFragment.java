@@ -48,7 +48,10 @@ public class StartFragment extends Fragment {
         connectButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                callbackListener.connectToPI();
+                //callbackListener.connectToPI();
+                ConnectDialogFragment connectDialogFragment = new ConnectDialogFragment();
+
+                connectDialogFragment.show(getFragmentManager(), "ConnectDialogFragment");
             }
         });
 

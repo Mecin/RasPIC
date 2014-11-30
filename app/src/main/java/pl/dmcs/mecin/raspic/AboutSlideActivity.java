@@ -23,30 +23,28 @@ import android.widget.Toast;
 
 public class AboutSlideActivity extends FragmentActivity implements SensorEventListener{
 
+    private float x ,y ,z;
+
+    private float last_x, last_y, last_z;
+
+    private static final int SHAKE_SENSIBLE = 800;
+
     MediaPlayer player;
 
     private SensorManager sensorManager;
 
-    private long lastUpdate;
+    private long lastUpdate = -1;
 
     private View view;
 
     private boolean color = false;
 
-    /**
-     * The number of pages (wizard steps) to show in this demo.
-     */
+    // The number of pages (wizard steps) to show.
+
     private static final int NUM_PAGES = 2;
 
-    /**
-     * The pager widget, which handles animation and allows swiping horizontally to access previous
-     * and next wizard steps.
-     */
     private ViewPager mPager;
 
-    /**
-     * The pager adapter, which provides the pages to the view pager widget.
-     */
     private PagerAdapter mPagerAdapter;
 
     @Override
@@ -54,14 +52,13 @@ public class AboutSlideActivity extends FragmentActivity implements SensorEventL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_slide);
 
-
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
 
         view = findViewById(R.id.pager);
-        view.setBackgroundColor(Color.GREEN);
+        view.setBackgroundColor(Color.BLACK);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         lastUpdate = System.currentTimeMillis();
@@ -87,34 +84,70 @@ public class AboutSlideActivity extends FragmentActivity implements SensorEventL
     }
 
     private void getAccelerometer(SensorEvent event) {
+
+        long curTime = System.currentTimeMillis();
+        // only allow one update every 100ms.
+        if ((curTime - lastUpdate) > 100) {
+            long diffTime = (curTime - lastUpdate);
+            lastUpdate = curTime;
+
         float[] values = event.values;
         // Movement
         float x = values[0];
         float y = values[1];
         float z = values[2];
 
-        float accelationSquareRoot = (x * x + y * y + z * z)
-                / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-        long actualTime = event.timestamp;
-        if (accelationSquareRoot >= 2) //
-        {
-            if (actualTime - lastUpdate < 200) {
-                return;
-            }
-            lastUpdate = actualTime;
+        if (Round(x,4) > 10.0000) {
+            Log.d("sensor", "X Right axis: " + x);
+            //Toast.makeText(this, "Right shake detected", Toast.LENGTH_SHORT).show();
 
-            //Toast.makeText(this, "Device was shuffed", Toast.LENGTH_SHORT).show();
-            // :3
-            player=MediaPlayer.create(AboutSlideActivity.this, R.raw.whip);
-            player.start();
-
-            if (color) {
-                view.setBackgroundColor(Color.GREEN);
+            if (mPager.getCurrentItem() == (NUM_PAGES - 1)) {
+                // If the user is currently looking at the first step, allow the system to handle the
+                // Back button. This calls finish() on this activity and pops the back stack.
+                //super.onBackPressed();
             } else {
-                view.setBackgroundColor(Color.RED);
+                // Otherwise, select the previous step.
+                mPager.setCurrentItem(mPager.getCurrentItem() + 1);
             }
-            color =! color;
+
         }
+        else if (Round(x,4) < -10.0000) {
+            Log.d("sensor", "X Left axis: " + x);
+            //Toast.makeText(this, "Left shake detected", Toast.LENGTH_SHORT).show();
+
+            if (mPager.getCurrentItem() == 0) {
+                // If the user is currently looking at the first step, allow the system to handle the
+                // Back button. This calls finish() on this activity and pops the back stack.
+                //super.onBackPressed();
+            } else {
+                // Otherwise, select the previous step.
+                mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+            }
+        }
+
+        float speed = Math.abs(x+y+z - last_x - last_y - last_z) / diffTime * 10000;
+
+        // Log.d("sensor", "diff: " + diffTime + " - speed: " + speed);
+        if (speed > SHAKE_SENSIBLE) {
+            Log.d("sensor", "shake detected w/ speed: " + speed);
+            //Toast.makeText(this, "shake detected w/ speed: " + speed, Toast.LENGTH_SHORT).show();
+        }
+
+        last_x = x;
+        last_y = y;
+        last_z = z;
+    }
+
+        //Log.d("accel values", "x: " + x + " y: " + y + " z: " + z);
+
+
+    }
+
+    public static float Round(float Rval, int Rpl) {
+        float p = (float)Math.pow(10,Rpl);
+        Rval = Rval * p;
+        float tmp = Math.round(Rval);
+        return (float)tmp/p;
     }
 
     @Override

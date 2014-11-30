@@ -7,23 +7,41 @@
 
     android:id="@+id/fragment_scanner">
 
-
-    <TextView android:id="@+id/your_ip_addr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/your_ip_addr" />
-
     <LinearLayout
+
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-    <Button android:id="@+id/start_scan_button"
+        <TextView
+            android:id="@+id/your_ip_addr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/your_ip_addr" />
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <Button
+        android:layout_marginRight="10dp"
+        android:padding="10dp"
+        android:background="@drawable/raspi_button"
+        android:id="@+id/start_scan_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/start_scan_button"
         />
     <Button
+        android:layout_marginRight="10dp"
+        android:padding="10dp"
+        android:background="@drawable/raspi_button"
         android:id="@+id/refresh_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,12 +57,25 @@
         android:inputType="numberDecimal"
         android:imeOptions="actionDone"
         android:hint="@string/reach_time_ms"
-
+        android:layout_marginRight="10dp"
         android:id="@+id/reachTimeEditText"
         android:layout_gravity="center_horizontal" />
 
+        <TextView
+            android:layout_marginRight="10dp"
+            android:id="@+id/ip_wifi_switcher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ip_wifi_switcher" />
+
+        <ToggleButton
+            android:id="@+id/toggle_ip_wifi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
     <ListView
+        android:layout_marginTop="10dp"
         android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
