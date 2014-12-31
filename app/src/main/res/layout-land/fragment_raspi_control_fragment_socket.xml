@@ -4,7 +4,7 @@
     android:id="@+id/socket_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     tools:context="pl.dmcs.mecin.raspic.RaspiControlFragmentSocket"
     android:gravity="center">
 
@@ -38,7 +38,7 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 >
 
@@ -62,7 +62,7 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 >
 
@@ -94,7 +94,7 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 >
 
