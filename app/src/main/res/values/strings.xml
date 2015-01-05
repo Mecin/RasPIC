@@ -29,4 +29,9 @@
     <string name="action_exit">Exit</string>
     <string name="ip_addr">192.168.1.1</string>
     <string name="ip_wifi_switcher">IP/Wi-fi</string>
+    <string name="top_gear">Top Gear</string>
+    <string name="low_gear">Low Gear</string>
+    <string name="mid_gear">Mid Gear</string>
+    <string name="button_play">Play</string>
+    <string name="button_stop">Stop</string>
 </resources>
