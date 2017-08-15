@@ -1,1 +1,1 @@
-Raspberry PI Controll
+Raspberry PI Control
